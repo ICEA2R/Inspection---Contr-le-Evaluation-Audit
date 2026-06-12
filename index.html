@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MonPortail — Ressources & Échanges</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:   #2C4A6E;
+      --navy-dark: #1a2f47;
+      --orange: #E8722A;
+      --bg:     #F8F9FA;
+      --panel:  #EEF2F7;
+      --text:   #1E2A38;
+      --muted:  #6B7A8D;
+      --white:  #ffffff;
+      --radius: 10px;
+      --sidebar-w: 230px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      z-index: 100;
+      box-shadow: 3px 0 15px rgba(0,0,0,0.15);
+    }
+
+    .sidebar-logo {
+      padding: 28px 22px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--white);
+      line-height: 1.2;
+    }
+    .sidebar-logo span {
+      color: var(--orange);
+    }
+    .sidebar-logo p {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 22px;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    nav a:hover, nav a.active {
+      color: var(--white);
+      background: rgba(255,255,255,0.08);
+      border-left-color: var(--orange);
+    }
+    nav a .ico {
+      font-size: 1.1rem;
+      width: 22px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px 22px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── MAIN ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--white);
+      padding: 18px 36px;
+      border-bottom: 1px solid #dde3ec;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--navy);
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel);
+      border-radius: 30px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .search-bar input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.85rem;
+      color: var(--text);
+      width: 220px;
+    }
+
+    /* ── SECTIONS ── */
+    .page { display: none; padding: 36px; max-width: 960px; }
+    .page.active { display: block; }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    /* Cards grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 22px;
+      border: 1px solid #dde3ec;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 6px 24px rgba(44,74,110,0.1);
+      transform: translateY(-2px);
+    }
+    .card-ico {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .card p {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .card .tag {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--orange);
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 7px 16px;
+      background: var(--navy);
+      color: var(--white);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover { background: var(--orange); }
+    .btn.outline {
+      background: transparent;
+      color: var(--navy);
+      border: 1.5px solid var(--navy);
+    }
+    .btn.outline:hover { background: var(--navy); color: var(--white); }
+
+    /* FAQ */
+    .faq-item {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 18px 22px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-q:hover { color: var(--orange); }
+    .faq-a {
+      display: none;
+      padding: 0 22px 18px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.7;
+      border-top: 1px solid var(--panel);
+    }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .faq-q { color: var(--orange); }
+    .chevron { transition: transform 0.2s; }
+    .faq-item.open .chevron { transform: rotate(180deg); }
+
+    /* MODELES */
+    .modele-row {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 10px;
+      transition: box-shadow 0.2s;
+    }
+    .modele-row:hover { box-shadow: 0 4px 14px rgba(44,74,110,0.08); }
+    .modele-ico { font-size: 1.6rem; }
+    .modele-info { flex: 1; }
+    .modele-info strong { font-size: 0.93rem; color: var(--navy); }
+    .modele-info span { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .modele-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--panel);
+      color: var(--muted);
+    }
+    .modele-badge.word { background: #ddeeff; color: #1a5fa8; }
+    .modele-badge.pdf  { background: #ffe5d9; color: #c0400e; }
+    .modele-badge.xls  { background: #d9f5e8; color: #1a7a47; }
+
+    /* IMAGES gallery */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .gallery-item {
+      background: var(--panel);
+      border-radius: var(--radius);
+      aspect-ratio: 4/3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #c5cfd9;
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .gallery-item:hover { border-color: var(--orange); color: var(--orange); }
+    .gallery-item .big-ico { font-size: 2.2rem; margin-bottom: 6px; }
+
+    /* FORUM */
+    .forum-post {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 14px;
+    }
+    .forum-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .forum-author { font-weight: 600; font-size: 0.88rem; }
+    .forum-date { font-size: 0.78rem; color: var(--muted); }
+    .forum-body { font-size: 0.88rem; line-height: 1.7; color: var(--text); }
+    .forum-actions { margin-top: 12px; display: flex; gap: 10px; }
+    .forum-actions button {
+      background: none;
+      border: 1px solid #dde3ec;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .forum-actions button:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .new-post-box {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 28px;
+    }
+    .new-post-box h3 { font-size: 0.95rem; margin-bottom: 12px; color: var(--navy); }
+    .new-post-box textarea {
+      width: 100%;
+      border: 1px solid #dde3ec;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .new-post-box textarea:focus { border-color: var(--navy); }
+
+    /* ACCUEIL stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .stat-card .lbl {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-card .ico-big { font-size: 1.4rem; margin-bottom: 8px; }
+
+    /* Section title */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--orange);
+      margin-bottom: 14px;
+    }
+
+    /* DISQUS placeholder */
+    .disqus-zone {
+      background: var(--white);
+      border: 1px solid #dde3ec;
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 32px;
+    }
+    .disqus-zone .ico-big { font-size: 2.5rem; margin-bottom: 10px; }
+    .disqus-zone code {
+      display: block;
+      background: var(--panel);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 16px auto;
+      max-width: 500px;
+      text-align: left;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      #sidebar { width: 60px; }
+      #sidebar .sidebar-logo h1,
+      #sidebar .sidebar-logo p,
+      nav a span,
+      .sidebar-footer { display: none; }
+      nav a { justify-content: center; padding: 14px; }
+      #main { margin-left: 60px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      header { padding: 14px 18px; }
+      .page { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <h1>Mon<span>Portail</span></h1>
+    <p>Ressources & échanges</p>
+  </div>
+  <nav>
+    <a href="#" class="active" onclick="showPage('accueil', this)">
+      <span class="ico">🏠</span><span>Accueil</span>
+    </a>
+    <a href="#" onclick="showPage('dossiers', this)">
+      <span class="ico">📁</span><span>Dossiers</span>
+    </a>
+    <a href="#" onclick="showPage('faq', this)">
+      <span class="ico">❓</span><span>FAQ</span>
+    </a>
+    <a href="#" onclick="showPage('conseils', this)">
+      <span class="ico">💡</span><span>Conseils</span>
+    </a>
+    <a href="#" onclick="showPage('modeles', this)">
+      <span class="ico">📄</span><span>Modèles</span>
+    </a>
+    <a href="#" onclick="showPage('images', this)">
+      <span class="ico">🖼️</span><span>Images</span>
+    </a>
+    <a href="#" onclick="showPage('forum', this)">
+      <span class="ico">💬</span><span>Échanges</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">v1.0 · GitHub Pages</div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+
+  <!-- Header -->
+  <header>
+    <h2 id="page-heading">Accueil</h2>
+    <div class="search-bar">
+      🔍 <input type="text" placeholder="Rechercher…" />
+    </div>
+  </header>
+
+  <!-- ── PAGE : ACCUEIL ── -->
+  <section class="page active" id="page-accueil">
+    <p class="page-title">Bienvenue sur MonPortail</p>
+    <p class="page-sub">Retrouvez ici tous vos dossiers, ressources, conseils et échanges en un seul endroit.</p>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="ico-big">📁</div><div class="num">12</div><div class="lbl">Dossiers</div></div>
+      <div class="stat-card"><div class="ico-big">❓</div><div class="num">24</div><div class="lbl">Questions FAQ</div></div>
+      <div class="stat-card"><div class="ico-big">📄</div><div class="num">8</div><div class="lbl">Modèles</div></div>
+      <div class="stat-card"><div class="ico-big">💬</div><div class="num">36</div><div class="lbl">Échanges</div></div>
+    </div>
+
+    <p class="section-label">Accès rapide</p>
+    <div class="grid">
+      <div class="card" onclick="showPage('dossiers', null)">
+        <div class="card-ico">📁</div>
+        <h3>Dossiers</h3>
+        <p>Consultez et téléchargez les dossiers d'information classés par thème.</p>
+        <span class="tag">→ Voir les dossiers</span>
+      </div>
+      <div class="card" onclick="showPage('faq', null)">
+        <div class="card-ico">❓</div>
+        <h3>FAQ</h3>
+        <p>Les réponses aux questions les plus fréquemment posées.</p>
+        <span class="tag">→ Consulter la FAQ</span>
+      </div>
+      <div class="card" onclick="showPage('conseils', null)">
+        <div class="card-ico">💡</div>
+        <h3>Conseils</h3>
+        <p>Des conseils pratiques rédigés et mis à jour régulièrement.</p>
+        <span class="tag">→ Lire les conseils</span>
+      </div>
+      <div class="card" onclick="showPage('modeles', null)">
+        <div class="card-ico">📄</div>
+        <h3>Modèles</h3>
+        <p>Téléchargez des modèles de documents prêts à l'emploi.</p>
+        <span class="tag">→ Voir les modèles</span>
+      </div>
+      <div class="card" onclick="showPage('images', null)">
+        <div class="card-ico">🖼️</div>
+        <h3>Images</h3>
+        <p>Galerie d'images et ressources visuelles disponibles.</p>
+        <span class="tag">→ Voir la galerie</span>
+      </div>
+      <div class="card" onclick="showPage('forum', null)">
+        <div class="card-ico">💬</div>
+        <h3>Échanges</h3>
+        <p>Posez vos questions, partagez vos expériences avec la communauté.</p>
+        <span class="tag">→ Rejoindre les échanges</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE : DOSSIERS ── -->
+  <section class="page" id="page-dossiers">
+    <p class="page-title">Dossiers</p>
+    <p class="page-sub">Tous les dossiers d'information classés par thème. Cliquez pour consulter ou télécharger.</p>
+    <div class="grid">
+      <div class="card"><div class="card-ico">📂</div><h3>Dossier Administration</h3><p>Documents officiels, démarches administratives et formulaires utiles.</p><button class="btn">Consulter</button></div>
+      <div class="card"><div class="card-ico">📂</div><h3>Dossier Juridique</h3><p>Textes de loi, jurisprudences et ressources légales à connaître.</p><button class="btn">Consulter</button></div>
+      <div class="card"><div class="card-ico">📂</div><h3>Dossier Technique</h3><p>Guides techniques, manuels et documentations pratiques.</p><button class="btn">Consulter</button></div>
+      <div class="card"><div class="card-ico">📂</div><h3>Dossier Formation</h3><p>Supports pédagogiques, fiches de cours et exercices.</p><button class="btn">Consulter</button></div>
+      <div class="card"><div class="card-ico">📂</div><h3>Dossier Finances</h3><p>Tableaux, budgets types et documents financiers.</p><button class="btn">Consulter</button></div>
+      <div class="card" style="border: 2px dashed #c5cfd9; background: transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--muted);">
+        <span style="font-size:2rem">➕</span>
+        <span style="font-size:0.85rem; font-weight:600;">Ajouter un dossier</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE : FAQ ── -->
+  <section class="page" id="page-faq">
+    <p class="page-title">Foire aux Questions</p>
+    <p class="page-sub">Trouvez rapidement une réponse aux questions les plus posées.</p>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Comment accéder aux documents ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Rendez-vous dans la section <strong>Dossiers</strong> ou <strong>Modèles</strong> depuis le menu à gauche. Chaque document dispose d'un bouton de téléchargement direct.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Comment participer aux échanges ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Accédez à la section <strong>Échanges</strong> pour lire et poster des messages. Un compte Disqus gratuit suffit pour commenter.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Les documents sont-ils mis à jour régulièrement ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Oui, chaque document précise sa date de dernière mise à jour. N'hésitez pas à signaler une information obsolète dans la section Échanges.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Comment télécharger un modèle de document ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Dans la section <strong>Modèles</strong>, cliquez sur le bouton de téléchargement à droite de chaque modèle. Le fichier se télécharge directement dans votre dossier habituel.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Comment proposer un nouveau contenu ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Utilisez la section <strong>Échanges</strong> pour suggérer un ajout ou contactez directement l'administrateur via le formulaire de contact disponible en bas de page.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Le site est-il accessible depuis un mobile ? <span class="chevron">▼</span></div>
+      <div class="faq-a">Oui, le site est entièrement responsive et s'adapte à tous les écrans : ordinateur, tablette et smartphone.</div>
+    </div>
+  </section>
+
+  <!-- ── PAGE : CONSEILS ── -->
+  <section class="page" id="page-conseils">
+    <p class="page-title">Conseils pratiques</p>
+    <p class="page-sub">Des fiches conseil rédigées pour vous aider au quotidien.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="card-ico">✅</div>
+        <h3>Bien organiser ses dossiers</h3>
+        <p>Adoptez une arborescence claire : un dossier par année, un sous-dossier par thème. Nommez vos fichiers avec la date au début (ex : 2024-01-facture.pdf).</p>
+        <span class="tag">Organisation</span>
+      </div>
+      <div class="card">
+        <div class="card-ico">🔒</div>
+        <h3>Sécuriser ses documents</h3>
+        <p>Faites des sauvegardes régulières sur un disque externe ET dans le cloud. La règle 3-2-1 : 3 copies, 2 supports différents, 1 hors site.</p>
+        <span class="tag">Sécurité</span>
+      </div>
+      <div class="card">
+        <div class="card-ico">📝</div>
+        <h3>Rédiger un courrier efficace</h3>
+        <p>Soyez concis, précis et structuré. Objet clair, corps en 3 parties (contexte / demande / suite attendue), formule de politesse sobre.</p>
+        <span class="tag">Communication</span>
+      </div>
+      <div class="card">
+        <div class="card-ico">🕐</div>
+        <h3>Respecter les délais légaux</h3>
+        <p>Notez toujours les dates limites dans votre agenda dès réception d'un document officiel. Un délai manqué peut avoir des conséquences importantes.</p>
+        <span class="tag">Administratif</span>
+      </div>
+      <div class="card">
+        <div class="card-ico">🤝</div>
+        <h3>Communiquer avec l'administration</h3>
+        <p>Privilégiez toujours l'écrit (email ou courrier recommandé) pour garder une trace. Citez les références de votre dossier dès le premier contact.</p>
+        <span class="tag">Démarches</span>
+      </div>
+      <div class="card">
+        <div class="card-ico">🔍</div>
+        <h3>Vérifier ses sources</h3>
+        <p>Avant d'agir sur une information, vérifiez-la sur un site officiel (.gouv.fr, .europa.eu). Les rumeurs et informations non vérifiées peuvent induire en erreur.</p>
+        <span class="tag">Fiabilité</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PAGE : MODÈLES ── -->
+  <section class="page" id="page-modeles">
+    <p class="page-title">Modèles de documents</p>
+    <p class="page-sub">Téléchargez des modèles prêts à personnaliser.</p>
+
+    <p class="section-label">Courriers & lettres</p>
+    <div class="modele-row"><span class="modele-ico">📝</span><div class="modele-info"><strong>Lettre de réclamation type</strong><span>Courrier officiel pour toute réclamation administrative ou commerciale</span></div><span class="modele-badge word">Word</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+    <div class="modele-row"><span class="modele-ico">📝</span><div class="modele-info"><strong>Mise en demeure</strong><span>Modèle de mise en demeure conforme aux usages</span></div><span class="modele-badge word">Word</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+    <div class="modele-row"><span class="modele-ico">📝</span><div class="modele-info"><strong>Demande d'information</strong><span>Pour solliciter un organisme ou une administration</span></div><span class="modele-badge pdf">PDF</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+
+    <p class="section-label" style="margin-top:28px">Contrats & accords</p>
+    <div class="modele-row"><span class="modele-ico">📋</span><div class="modele-info"><strong>Convention de partenariat</strong><span>Modèle de convention simple entre deux parties</span></div><span class="modele-badge word">Word</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+    <div class="modele-row"><span class="modele-ico">📋</span><div class="modele-info"><strong>Attestation sur l'honneur</strong><span>Document certifiant une information de manière officielle</span></div><span class="modele-badge pdf">PDF</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+
+    <p class="section-label" style="margin-top:28px">Tableaux & suivi</p>
+    <div class="modele-row"><span class="modele-ico">📊</span><div class="modele-info"><strong>Tableau de suivi des dépenses</strong><span>Feuille de calcul pour gérer un budget simplement</span></div><span class="modele-badge xls">Excel</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+    <div class="modele-row"><span class="modele-ico">📊</span><div class="modele-info"><strong>Planning d'actions</strong><span>Tableau de planification hebdomadaire ou mensuel</span></div><span class="modele-badge xls">Excel</span><button class="btn" style="margin-left:12px">⬇ Télécharger</button></div>
+  </section>
+
+  <!-- ── PAGE : IMAGES ── -->
+  <section class="page" id="page-images">
+    <p class="page-title">Galerie d'images</p>
+    <p class="page-sub">Stockez et partagez vos images et ressources visuelles.</p>
+
+    <div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
+      <button class="btn">⬆ Ajouter une image</button>
+      <button class="btn outline">Tout sélectionner</button>
+    </div>
+
+    <p class="section-label">Images récentes</p>
+    <div class="gallery">
+      <div class="gallery-item"><div class="big-ico">🖼️</div>image_01.jpg</div>
+      <div class="gallery-item"><div class="big-ico">🖼️</div>image_02.png</div>
+      <div class="gallery-item"><div class="big-ico">🖼️</div>schema_01.png</div>
+      <div class="gallery-item"><div class="big-ico">🖼️</div>logo_v2.svg</div>
+      <div class="gallery-item"><div class="big-ico">🖼️</div>photo_01.jpg</div>
+      <div class="gallery-item" style="border-style:solid; border-color:var(--orange); color:var(--orange);">
+        <div class="big-ico">➕</div>Ajouter
+      </div>
+    </div>
+
+    <p class="section-label">Note sur l'hébergement d'images</p>
+    <div style="background:var(--panel); border-radius:var(--radius); padding:18px 22px; font-size:0.85rem; color:var(--muted); line-height:1.7;">
+      Sur GitHub Pages, déposez vos images dans un dossier <code style="background:#dde3ec; padding:2px 6px; border-radius:4px;">/images</code> de votre dépôt. Pour de grandes galeries, envisagez <strong>Cloudinary</strong> (gratuit jusqu'à 25 Go) ou <strong>ImgBB</strong> pour héberger les images séparément.
+    </div>
+  </section>
+
+  <!-- ── PAGE : FORUM / ÉCHANGES ── -->
+  <section class="page" id="page-forum">
+    <p class="page-title">Échanges & Forum</p>
+    <p class="page-sub">Posez vos questions, partagez vos expériences, aidez la communauté.</p>
+
+    <div class="new-post-box">
+      <h3>✍️ Nouveau message</h3>
+      <textarea placeholder="Partagez une question, une astuce, une expérience…"></textarea>
+      <button class="btn" style="margin-top:10px">Publier</button>
+    </div>
+
+    <p class="section-label">Messages récents</p>
+
+    <div class="forum-post">
+      <div class="forum-meta">
+        <div class="avatar">ML</div>
+        <div><div class="forum-author">Marie L.</div><div class="forum-date">il y a 2 jours</div></div>
+      </div>
+      <div class="forum-body">Bonjour à tous ! Est-ce que quelqu'un a un modèle de lettre pour contester une décision administrative ? J'ai regardé dans les modèles mais je ne trouve pas exactement ce qu'il me faut.</div>
+      <div class="forum-actions">
+        <button>👍 Utile (3)</button>
+        <button>💬 Répondre</button>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-meta">
+        <div class="avatar" style="background:var(--orange);">PT</div>
+        <div><div class="forum-author">Pierre T.</div><div class="forum-date">il y a 4 jours</div></div>
+      </div>
+      <div class="forum-body">Je partage un conseil qui m'a bien aidé : pour toute démarche officielle, gardez une copie de chaque courrier envoyé avec sa date. Ça m'a sauvé deux fois !</div>
+      <div class="forum-actions">
+        <button>👍 Utile (12)</button>
+        <button>💬 Répondre</button>
+      </div>
+    </div>
+
+    <div class="forum-post">
+      <div class="forum-meta">
+        <div class="avatar" style="background:#2e8b57;">SC</div>
+        <div><div class="forum-author">Sophie C.</div><div class="forum-date">il y a 1 semaine</div></div>
+      </div>
+      <div class="forum-body">Le dossier Juridique vient d'être mis à jour avec les dernières modifications réglementaires. N'hésitez pas à le consulter !</div>
+      <div class="forum-actions">
+        <button>👍 Utile (7)</button>
+        <button>💬 Répondre</button>
+      </div>
+    </div>
+
+    <!-- Zone Disqus -->
+    <div class="disqus-zone">
+      <div class="ico-big">💬</div>
+      <strong>Activer les commentaires Disqus</strong>
+      <p style="margin-top:8px">Pour activer un vrai système de commentaires, créez un compte gratuit sur <strong>disqus.com</strong>, puis remplacez la zone ci-dessous par votre code Disqus :</p>
+      <code>
+&lt;!-- Coller votre code Disqus ici --&gt;<br>
+&lt;div id="disqus_thread"&gt;&lt;/div&gt;<br>
+&lt;script&gt;<br>
+&nbsp;&nbsp;var disqus_config = function () {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;this.page.url = window.location.href;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;this.page.identifier = 'forum';<br>
+&nbsp;&nbsp;};<br>
+&lt;/script&gt;
+      </code>
+      <a href="https://disqus.com/profile/signup/" target="_blank" class="btn">Créer un compte Disqus gratuit →</a>
+    </div>
+  </section>
+
+</div><!-- /main -->
+
+<script>
+  // Navigation
+  function showPage(id, link) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    const titles = {
+      accueil: 'Accueil', dossiers: 'Dossiers', faq: 'FAQ',
+      conseils: 'Conseils', modeles: 'Modèles', images: 'Images', forum: 'Échanges'
+    };
+    document.getElementById('page-heading').textContent = titles[id] || id;
+    if (link) link.classList.add('active');
+    else {
+      document.querySelectorAll('nav a').forEach(a => {
+        if (a.getAttribute('onclick') && a.getAttribute('onclick').includes("'" + id + "'")) a.classList.add('active');
+      });
+    }
+  }
+
+  // FAQ accordion
+  function toggleFaq(el) {
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+
+  // Cards clickable
+  document.querySelectorAll('.card[onclick]').forEach(c => {
+    c.style.cursor = 'pointer';
+  });
+</script>
+</body>
+</html>
